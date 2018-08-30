@@ -159,10 +159,10 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
         try
         {
             final ByteBuffer buffer = state.sendBufferOne;
-            buffer.clear().position(DATAGRAM_LENGTH);
+            buffer.clear().limit(DATAGRAM_LENGTH);
 
             final int bytesWritten = state.sendChannelOne.write(buffer);
-            if (0 == bytesWritten)
+            if (DATAGRAM_LENGTH != bytesWritten)
             {
                 writeCounters.writeFails++;
             }
@@ -181,10 +181,10 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
         try
         {
             final ByteBuffer buffer = state.sendBufferTwo;
-            buffer.clear().position(DATAGRAM_LENGTH);
+            buffer.clear().limit(DATAGRAM_LENGTH);
 
             final int bytesWritten = state.sendChannelTwo.write(buffer);
-            if (0 == bytesWritten)
+            if (DATAGRAM_LENGTH != bytesWritten)
             {
                 writeCounters.writeFails++;
             }

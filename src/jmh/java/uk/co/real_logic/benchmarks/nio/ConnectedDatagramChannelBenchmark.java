@@ -136,10 +136,10 @@ public class ConnectedDatagramChannelBenchmark
         {
             final DatagramChannel sendChannel = state.sendChannels[state.sendChannelIndex];
             final ByteBuffer buffer = state.sendBuffer;
-            buffer.clear().position(DATAGRAM_LENGTH);
+            buffer.clear().limit(DATAGRAM_LENGTH);
 
             final int bytesWritten = sendChannel.write(buffer);
-            if (0 == bytesWritten)
+            if (DATAGRAM_LENGTH != bytesWritten)
             {
                 writeCounters.writeFails++;
             }
