@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.benchmarks;
+package uk.co.real_logic.benchmarks.nio;
 
 import org.agrona.CloseHelper;
 import org.openjdk.jmh.annotations.*;

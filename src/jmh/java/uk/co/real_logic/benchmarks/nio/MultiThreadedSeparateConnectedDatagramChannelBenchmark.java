@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.benchmarks;
+package uk.co.real_logic.benchmarks.nio;
 
 import org.agrona.CloseHelper;
 import org.openjdk.jmh.annotations.*;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.SECONDS)
-public class MultiThreadedUnconnectedDatagramChannelBenchmark
+public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
 {
     private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
     private static final int DATAGRAM_LENGTH = 64;
@@ -46,22 +46,25 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
 
     @State(Scope.Thread)
     @AuxCounters(AuxCounters.Type.OPERATIONS)
-    public static class SendCounters
+    public static class WriteCounters
     {
-        public int sendFails = 0;
-        public int sendExceptions = 0;
+        public int writeFails = 0;
+        public int writeExceptions = 0;
     }
 
     @State(Scope.Thread)
     public static class ThreadState
     {
-        final InetSocketAddress address = new InetSocketAddress("127.0.0.1", 7777);
+        final InetSocketAddress addressOne = new InetSocketAddress("127.0.0.1", 7777);
+        final InetSocketAddress addressTwo = new InetSocketAddress("127.0.0.1", 9999);
         final ByteBuffer receiveBuffer = ByteBuffer.allocateDirect(4096);
-        DatagramChannel receiveChannel = null;
+        DatagramChannel receiveChannelOne = null;
+        DatagramChannel receiveChannelTwo = null;
         final ByteBuffer sendBufferOne = ByteBuffer.allocateDirect(4096);
         DatagramChannel sendChannelOne = null;
         final ByteBuffer sendBufferTwo = ByteBuffer.allocateDirect(4096);
         DatagramChannel sendChannelTwo = null;
+        int receiveChannelIndex = 0;
 
         @Setup
         public void setup(final ThreadParams threadParams, final BenchmarkParams benchmarkParams)
@@ -70,23 +73,28 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
             switch (threadParams.getThreadIndex())
             {
                 case 0:
-                    receiveChannel = DatagramChannel.open();
-                    receiveChannel.bind(address);
-                    receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
-                    receiveChannel.configureBlocking(false);
+                    receiveChannelOne = DatagramChannel.open();
+                    receiveChannelOne.bind(addressOne);
+                    receiveChannelOne.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                    receiveChannelOne.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                    receiveChannelOne.configureBlocking(false);
+                    receiveChannelTwo = DatagramChannel.open();
+                    receiveChannelTwo.bind(addressTwo);
+                    receiveChannelTwo.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                    receiveChannelTwo.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                    receiveChannelTwo.configureBlocking(false);
                     break;
 
                 case 1:
                     sendChannelOne = DatagramChannel.open();
-                    sendChannelOne.connect(address);
+                    sendChannelOne.connect(addressOne);
                     sendChannelOne.setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
                     sendChannelOne.configureBlocking(false);
                     break;
 
                 case 2:
                     sendChannelTwo = DatagramChannel.open();
-                    sendChannelTwo.connect(address);
+                    sendChannelTwo.connect(addressTwo);
                     sendChannelTwo.setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
                     sendChannelTwo.configureBlocking(false);
                     break;
@@ -96,7 +104,8 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
         @TearDown
         public void teardown()
         {
-            CloseHelper.close(receiveChannel);
+            CloseHelper.close(receiveChannelOne);
+            CloseHelper.close(receiveChannelTwo);
             CloseHelper.close(sendChannelOne);
             CloseHelper.close(sendChannelTwo);
         }
@@ -112,13 +121,28 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
             final ByteBuffer buffer = state.receiveBuffer;
             buffer.clear();
 
-            final SocketAddress sourceSocket = state.receiveChannel.receive(buffer);
-            if (null == sourceSocket)
+            if (0 == state.receiveChannelIndex)
             {
-                receiveCounters.receiveFails++;
-            }
+                final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
+                if (null == sourceSocket)
+                {
+                    receiveCounters.receiveFails++;
+                }
 
-            return sourceSocket;
+                state.receiveChannelIndex = 1;
+                return sourceSocket;
+            }
+            else
+            {
+                final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
+                if (null == sourceSocket)
+                {
+                    receiveCounters.receiveFails++;
+                }
+
+                state.receiveChannelIndex = 0;
+                return sourceSocket;
+            }
         }
         catch (final IOException ignore)
         {
@@ -130,7 +154,7 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @Group("channel")
-    public void sendOne(final ThreadState state, final SendCounters sendCounters)
+    public void writeOne(final ThreadState state, final WriteCounters writeCounters)
     {
         try
         {
@@ -140,19 +164,19 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
             final int bytesWritten = state.sendChannelOne.write(buffer);
             if (0 == bytesWritten)
             {
-                sendCounters.sendFails++;
+                writeCounters.writeFails++;
             }
         }
         catch (final IOException ignore)
         {
-            sendCounters.sendExceptions++;
+            writeCounters.writeExceptions++;
         }
     }
 
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @Group("channel")
-    public void sendTwo(final ThreadState state, final SendCounters sendCounters)
+    public void writeTwo(final ThreadState state, final WriteCounters writeCounters)
     {
         try
         {
@@ -162,12 +186,12 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
             final int bytesWritten = state.sendChannelTwo.write(buffer);
             if (0 == bytesWritten)
             {
-                sendCounters.sendFails++;
+                writeCounters.writeFails++;
             }
         }
         catch (final IOException ignore)
         {
-            sendCounters.sendExceptions++;
+            writeCounters.writeExceptions++;
         }
     }
 }

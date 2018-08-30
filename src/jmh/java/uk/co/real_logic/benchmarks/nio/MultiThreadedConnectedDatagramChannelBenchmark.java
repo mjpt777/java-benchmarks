@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.benchmarks;
+package uk.co.real_logic.benchmarks.nio;
 
 import org.agrona.CloseHelper;
 import org.openjdk.jmh.annotations.*;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.SECONDS)
-public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
+public class MultiThreadedConnectedDatagramChannelBenchmark
 {
     private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
     private static final int DATAGRAM_LENGTH = 64;
@@ -55,16 +55,13 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
     @State(Scope.Thread)
     public static class ThreadState
     {
-        final InetSocketAddress addressOne = new InetSocketAddress("127.0.0.1", 7777);
-        final InetSocketAddress addressTwo = new InetSocketAddress("127.0.0.1", 9999);
+        final InetSocketAddress address = new InetSocketAddress("127.0.0.1", 7777);
         final ByteBuffer receiveBuffer = ByteBuffer.allocateDirect(4096);
-        DatagramChannel receiveChannelOne = null;
-        DatagramChannel receiveChannelTwo = null;
+        DatagramChannel receiveChannel = null;
         final ByteBuffer sendBufferOne = ByteBuffer.allocateDirect(4096);
         DatagramChannel sendChannelOne = null;
         final ByteBuffer sendBufferTwo = ByteBuffer.allocateDirect(4096);
         DatagramChannel sendChannelTwo = null;
-        int receiveChannelIndex = 0;
 
         @Setup
         public void setup(final ThreadParams threadParams, final BenchmarkParams benchmarkParams)
@@ -73,28 +70,23 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             switch (threadParams.getThreadIndex())
             {
                 case 0:
-                    receiveChannelOne = DatagramChannel.open();
-                    receiveChannelOne.bind(addressOne);
-                    receiveChannelOne.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    receiveChannelOne.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
-                    receiveChannelOne.configureBlocking(false);
-                    receiveChannelTwo = DatagramChannel.open();
-                    receiveChannelTwo.bind(addressTwo);
-                    receiveChannelTwo.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    receiveChannelTwo.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
-                    receiveChannelTwo.configureBlocking(false);
+                    receiveChannel = DatagramChannel.open();
+                    receiveChannel.bind(address);
+                    receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                    receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                    receiveChannel.configureBlocking(false);
                     break;
 
                 case 1:
                     sendChannelOne = DatagramChannel.open();
-                    sendChannelOne.connect(addressOne);
+                    sendChannelOne.connect(address);
                     sendChannelOne.setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
                     sendChannelOne.configureBlocking(false);
                     break;
 
                 case 2:
                     sendChannelTwo = DatagramChannel.open();
-                    sendChannelTwo.connect(addressTwo);
+                    sendChannelTwo.connect(address);
                     sendChannelTwo.setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
                     sendChannelTwo.configureBlocking(false);
                     break;
@@ -104,8 +96,7 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
         @TearDown
         public void teardown()
         {
-            CloseHelper.close(receiveChannelOne);
-            CloseHelper.close(receiveChannelTwo);
+            CloseHelper.close(receiveChannel);
             CloseHelper.close(sendChannelOne);
             CloseHelper.close(sendChannelTwo);
         }
@@ -121,28 +112,13 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             final ByteBuffer buffer = state.receiveBuffer;
             buffer.clear();
 
-            if (0 == state.receiveChannelIndex)
+            final SocketAddress sourceSocket = state.receiveChannel.receive(buffer);
+            if (null == sourceSocket)
             {
-                final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
-                if (null == sourceSocket)
-                {
-                    receiveCounters.receiveFails++;
-                }
-
-                state.receiveChannelIndex = 1;
-                return sourceSocket;
+                receiveCounters.receiveFails++;
             }
-            else
-            {
-                final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
-                if (null == sourceSocket)
-                {
-                    receiveCounters.receiveFails++;
-                }
 
-                state.receiveChannelIndex = 0;
-                return sourceSocket;
-            }
+            return sourceSocket;
         }
         catch (final IOException ignore)
         {

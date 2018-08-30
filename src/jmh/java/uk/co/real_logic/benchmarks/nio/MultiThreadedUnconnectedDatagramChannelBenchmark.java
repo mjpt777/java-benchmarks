@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.co.real_logic.benchmarks;
+package uk.co.real_logic.benchmarks.nio;
 
 import org.agrona.CloseHelper;
 import org.openjdk.jmh.annotations.*;
@@ -21,21 +21,19 @@ import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.ThreadParams;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.StandardSocketOptions;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.SECONDS)
-public class ConnectedDatagramChannelBenchmark
+public class MultiThreadedUnconnectedDatagramChannelBenchmark
 {
     private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
     private static final int DATAGRAM_LENGTH = 64;
 
-    @Param({ "1", "2" })
+    @Param({ "2" })
     int sourceCount;
 
     @State(Scope.Thread)
@@ -48,10 +46,10 @@ public class ConnectedDatagramChannelBenchmark
 
     @State(Scope.Thread)
     @AuxCounters(AuxCounters.Type.OPERATIONS)
-    public static class WriteCounters
+    public static class SendCounters
     {
-        public int writeFails = 0;
-        public int writeExceptions = 0;
+        public int sendFails = 0;
+        public int sendExceptions = 0;
     }
 
     @State(Scope.Thread)
@@ -60,34 +58,38 @@ public class ConnectedDatagramChannelBenchmark
         final InetSocketAddress address = new InetSocketAddress("127.0.0.1", 7777);
         final ByteBuffer receiveBuffer = ByteBuffer.allocateDirect(4096);
         DatagramChannel receiveChannel = null;
-        final ByteBuffer sendBuffer = ByteBuffer.allocateDirect(4096);
-        DatagramChannel sendChannels[] = new DatagramChannel[0];
-        int sendChannelIndex = 0;
+        final ByteBuffer sendBufferOne = ByteBuffer.allocateDirect(4096);
+        DatagramChannel sendChannelOne = null;
+        final ByteBuffer sendBufferTwo = ByteBuffer.allocateDirect(4096);
+        DatagramChannel sendChannelTwo = null;
 
         @Setup
         public void setup(final ThreadParams threadParams, final BenchmarkParams benchmarkParams)
             throws IOException
         {
-            if (threadParams.getThreadIndex() == 0)
+            switch (threadParams.getThreadIndex())
             {
-                receiveChannel = DatagramChannel.open();
-                receiveChannel.bind(address);
-                receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
-                receiveChannel.configureBlocking(false);
-            }
-            else
-            {
-                final int sourceCount = Integer.parseInt(benchmarkParams.getParam("sourceCount"));
-                sendChannels = new DatagramChannel[sourceCount];
+                case 0:
+                    receiveChannel = DatagramChannel.open();
+                    receiveChannel.bind(address);
+                    receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                    receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                    receiveChannel.configureBlocking(false);
+                    break;
 
-                for (int i = 0; i < sourceCount; i++)
-                {
-                    sendChannels[i] = DatagramChannel.open();
-                    sendChannels[i].connect(address);
-                    sendChannels[i].setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
-                    sendChannels[i].configureBlocking(false);
-                }
+                case 1:
+                    sendChannelOne = DatagramChannel.open();
+                    sendChannelOne.connect(address);
+                    sendChannelOne.setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
+                    sendChannelOne.configureBlocking(false);
+                    break;
+
+                case 2:
+                    sendChannelTwo = DatagramChannel.open();
+                    sendChannelTwo.connect(address);
+                    sendChannelTwo.setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
+                    sendChannelTwo.configureBlocking(false);
+                    break;
             }
         }
 
@@ -95,10 +97,8 @@ public class ConnectedDatagramChannelBenchmark
         public void teardown()
         {
             CloseHelper.close(receiveChannel);
-            for (final DatagramChannel channel : sendChannels)
-            {
-                CloseHelper.close(channel);
-            }
+            CloseHelper.close(sendChannelOne);
+            CloseHelper.close(sendChannelTwo);
         }
     }
 
@@ -130,30 +130,44 @@ public class ConnectedDatagramChannelBenchmark
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @Group("channel")
-    public void write(final ThreadState state, final WriteCounters writeCounters)
+    public void sendOne(final ThreadState state, final SendCounters sendCounters)
     {
         try
         {
-            final DatagramChannel sendChannel = state.sendChannels[state.sendChannelIndex];
-            final ByteBuffer buffer = state.sendBuffer;
+            final ByteBuffer buffer = state.sendBufferOne;
             buffer.clear().position(DATAGRAM_LENGTH);
 
-            final int bytesWritten = sendChannel.write(buffer);
+            final int bytesWritten = state.sendChannelOne.write(buffer);
             if (0 == bytesWritten)
             {
-                writeCounters.writeFails++;
-            }
-            else
-            {
-                if (++state.sendChannelIndex >= state.sendChannels.length)
-                {
-                    state.sendChannelIndex = 0;
-                }
+                sendCounters.sendFails++;
             }
         }
         catch (final IOException ignore)
         {
-            writeCounters.writeExceptions++;
+            sendCounters.sendExceptions++;
+        }
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.Throughput)
+    @Group("channel")
+    public void sendTwo(final ThreadState state, final SendCounters sendCounters)
+    {
+        try
+        {
+            final ByteBuffer buffer = state.sendBufferTwo;
+            buffer.clear().position(DATAGRAM_LENGTH);
+
+            final int bytesWritten = state.sendChannelTwo.write(buffer);
+            if (0 == bytesWritten)
+            {
+                sendCounters.sendFails++;
+            }
+        }
+        catch (final IOException ignore)
+        {
+            sendCounters.sendExceptions++;
         }
     }
 }
