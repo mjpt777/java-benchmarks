@@ -15,6 +15,7 @@
  */
 package uk.co.real_logic.benchmarks;
 
+import org.agrona.CloseHelper;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.infra.ThreadParams;
@@ -41,7 +42,7 @@ public class UnconnectedDatagramChannelBenchmark
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class ReceiveCounters
     {
-        public int failedReceives = 0;
+        public int receiveFails = 0;
         public int receiveExceptions = 0;
     }
 
@@ -49,7 +50,7 @@ public class UnconnectedDatagramChannelBenchmark
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class SendCounters
     {
-        public int failedSends = 0;
+        public int sendFails = 0;
         public int sendExceptions = 0;
     }
 
@@ -65,33 +66,37 @@ public class UnconnectedDatagramChannelBenchmark
 
         @Setup
         public void setup(final ThreadParams threadParams, final BenchmarkParams benchmarkParams)
+            throws IOException
         {
-            try
+            if (threadParams.getThreadIndex() == 0)
             {
-                if (threadParams.getThreadIndex() == 0)
-                {
-                    receiveChannel = DatagramChannel.open();
-                    receiveChannel.bind(address);
-                    receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
-                    receiveChannel.configureBlocking(false);
-                }
-                else
-                {
-                    final int sourceCount = Integer.parseInt(benchmarkParams.getParam("sourceCount"));
-                    sendChannels = new DatagramChannel[sourceCount];
+                receiveChannel = DatagramChannel.open();
+                receiveChannel.bind(address);
+                receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                receiveChannel.configureBlocking(false);
+            }
+            else
+            {
+                final int sourceCount = Integer.parseInt(benchmarkParams.getParam("sourceCount"));
+                sendChannels = new DatagramChannel[sourceCount];
 
-                    for (int i = 0; i < sourceCount; i++)
-                    {
-                        sendChannels[i] = DatagramChannel.open();
-                        sendChannels[i].setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
-                        sendChannels[i].configureBlocking(false);
-                    }
+                for (int i = 0; i < sourceCount; i++)
+                {
+                    sendChannels[i] = DatagramChannel.open();
+                    sendChannels[i].setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
+                    sendChannels[i].configureBlocking(false);
                 }
             }
-            catch (final IOException ex)
+        }
+
+        @TearDown
+        public void teardown()
+        {
+            CloseHelper.close(receiveChannel);
+            for (final DatagramChannel channel : sendChannels)
             {
-                throw new RuntimeException(ex);
+                CloseHelper.close(channel);
             }
         }
     }
@@ -109,7 +114,7 @@ public class UnconnectedDatagramChannelBenchmark
             final SocketAddress sourceSocket = state.receiveChannel.receive(buffer);
             if (null == sourceSocket)
             {
-                receiveCounters.failedReceives++;
+                receiveCounters.receiveFails++;
             }
 
             return sourceSocket;
@@ -135,7 +140,7 @@ public class UnconnectedDatagramChannelBenchmark
             final int bytesWritten = sendChannel.send(buffer, state.address);
             if (0 == bytesWritten)
             {
-                sendCounters.failedSends++;
+                sendCounters.sendFails++;
             }
             else
             {
