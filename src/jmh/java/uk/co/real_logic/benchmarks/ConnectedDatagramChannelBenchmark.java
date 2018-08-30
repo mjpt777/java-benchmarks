@@ -31,9 +31,10 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class ConnectedDatagramChannelBenchmark
 {
+    private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
     private static final int DATAGRAM_LENGTH = 64;
 
-    @Param({ "1", "2", "4" })
+    @Param({ "1", "2" })
     int sourceCount;
 
     @State(Scope.Thread)
@@ -72,6 +73,7 @@ public class ConnectedDatagramChannelBenchmark
                     receiveChannel = DatagramChannel.open();
                     receiveChannel.bind(address);
                     receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+                    receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
                     receiveChannel.configureBlocking(false);
                 }
                 else
@@ -83,6 +85,7 @@ public class ConnectedDatagramChannelBenchmark
                     {
                         sendChannels[i] = DatagramChannel.open();
                         sendChannels[i].connect(address);
+                        sendChannels[i].setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
                         sendChannels[i].configureBlocking(false);
                     }
                 }
