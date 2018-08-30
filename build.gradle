@@ -1,0 +1,69 @@
+/*
+ * Copyright 2018 Real Logic Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+}
+
+defaultTasks 'clean', 'build', 'shadowJar'
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/jmh/java'
+        }
+    }
+}
+
+dependencies {
+    compile 'org.openjdk.jmh:jmh-core:1.21'
+    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
+}
+
+jar.enabled = false
+
+shadowJar {
+    archiveName = 'benchmarks.jar'
+    classifier = 'benchmarks'
+    manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
+}
+
+task runBenchmarks(type: Exec) {
+    commandLine 'java',
+    '-jar', 'build/libs/benchmarks.jar',
+    '.*Benchmark.*',
+    '-w', '1s', '-r', '1s', '-wi', '3', '-i', '5', '-f', '3'
+}
+
+wrapper {
+    gradleVersion = '4.10'
+    distributionType = 'ALL'
+}
