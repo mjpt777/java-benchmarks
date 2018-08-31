@@ -32,9 +32,6 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class ConnectedDatagramChannelBenchmark
 {
-    private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
-    private static final int DATAGRAM_LENGTH = 1024;
-
     @Param({ "1", "2" })
     int sourceCount;
 
@@ -75,7 +72,7 @@ public class ConnectedDatagramChannelBenchmark
                 receiveChannel = DatagramChannel.open();
                 receiveChannel.bind(address);
                 receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, Configuration.SOCKET_BUFFER_LENGTH);
                 receiveChannel.configureBlocking(false);
             }
             else
@@ -87,7 +84,7 @@ public class ConnectedDatagramChannelBenchmark
                 {
                     sendChannels[i] = DatagramChannel.open();
                     sendChannels[i].connect(address);
-                    sendChannels[i].setOption(StandardSocketOptions.SO_SNDBUF, SOCKET_BUFFER_LENGTH);
+                    sendChannels[i].setOption(StandardSocketOptions.SO_SNDBUF, Configuration.SOCKET_BUFFER_LENGTH);
                     sendChannels[i].configureBlocking(false);
                 }
             }
@@ -139,10 +136,10 @@ public class ConnectedDatagramChannelBenchmark
         {
             final DatagramChannel sendChannel = state.sendChannels[state.sendChannelIndex];
             final ByteBuffer buffer = state.sendBuffer;
-            buffer.clear().limit(DATAGRAM_LENGTH);
+            buffer.clear().limit(Configuration.DATAGRAM_LENGTH);
 
             final int bytesWritten = sendChannel.write(buffer);
-            if (DATAGRAM_LENGTH == bytesWritten)
+            if (Configuration.DATAGRAM_LENGTH == bytesWritten)
             {
                 writeCounters.writeSuccesses++;
                 if (++state.sendChannelIndex >= state.sendChannels.length)

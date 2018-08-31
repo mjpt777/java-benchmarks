@@ -26,13 +26,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.TimeUnit;
 
+import static uk.co.real_logic.benchmarks.nio.Configuration.DATAGRAM_LENGTH;
+import static uk.co.real_logic.benchmarks.nio.Configuration.SOCKET_BUFFER_LENGTH;
+
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
 {
-    private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
-    private static final int DATAGRAM_LENGTH = 1024;
-
     @Param({ "2" })
     int sourceCount;
 
