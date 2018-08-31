@@ -18,5 +18,5 @@ package uk.co.real_logic.benchmarks.nio;
 public class Configuration
 {
     public static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
-    public static final int DATAGRAM_LENGTH = 1024;
+    public static final int DATAGRAM_LENGTH = 1408;
 }
