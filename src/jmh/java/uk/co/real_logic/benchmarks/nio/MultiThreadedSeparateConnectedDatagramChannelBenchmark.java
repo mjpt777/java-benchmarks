@@ -40,18 +40,18 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class ReceiveCounters
     {
-        public int receiveExceptions = 0;
-        public int receiveFails = 0;
-        public int receiveSuccesses = 0;
+        public int receiveException = 0;
+        public int receiveFail = 0;
+        public int receiveSuccess = 0;
     }
 
     @State(Scope.Thread)
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class WriteCounters
     {
-        public int writeExceptions = 0;
-        public int writeFails = 0;
-        public int writeSuccesses = 0;
+        public int writeException = 0;
+        public int writeFail = 0;
+        public int writeSuccess = 0;
     }
 
     @State(Scope.Thread)
@@ -129,11 +129,11 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
                 final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
                 if (null == sourceSocket)
                 {
-                    receiveCounters.receiveFails++;
+                    receiveCounters.receiveFail++;
                 }
                 else
                 {
-                    receiveCounters.receiveSuccesses++;
+                    receiveCounters.receiveSuccess++;
                 }
 
                 state.receiveChannelIndex = 1;
@@ -143,11 +143,11 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
                 final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
                 if (null == sourceSocket)
                 {
-                    receiveCounters.receiveFails++;
+                    receiveCounters.receiveFail++;
                 }
                 else
                 {
-                    receiveCounters.receiveSuccesses++;
+                    receiveCounters.receiveSuccess++;
                 }
 
                 state.receiveChannelIndex = 0;
@@ -155,7 +155,7 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
         }
         catch (final IOException ignore)
         {
-            receiveCounters.receiveExceptions++;
+            receiveCounters.receiveException++;
         }
     }
 
@@ -172,16 +172,16 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             final int bytesWritten = state.sendChannelOne.write(buffer);
             if (DATAGRAM_LENGTH == bytesWritten)
             {
-                writeCounters.writeSuccesses++;
+                writeCounters.writeSuccess++;
             }
             else
             {
-                writeCounters.writeFails++;
+                writeCounters.writeFail++;
             }
         }
         catch (final IOException ignore)
         {
-            writeCounters.writeExceptions++;
+            writeCounters.writeException++;
         }
     }
 
@@ -198,16 +198,16 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             final int bytesWritten = state.sendChannelTwo.write(buffer);
             if (DATAGRAM_LENGTH == bytesWritten)
             {
-                writeCounters.writeSuccesses++;
+                writeCounters.writeSuccess++;
             }
             else
             {
-                writeCounters.writeFails++;
+                writeCounters.writeFail++;
             }
         }
         catch (final IOException ignore)
         {
-            writeCounters.writeExceptions++;
+            writeCounters.writeException++;
         }
     }
 }

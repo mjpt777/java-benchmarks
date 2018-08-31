@@ -39,18 +39,18 @@ public class ConnectedDatagramChannelBenchmark
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class ReceiveCounters
     {
-        public int receiveExceptions = 0;
-        public int receiveFails = 0;
-        public int receiveSuccesses = 0;
+        public int receiveException = 0;
+        public int receiveFail = 0;
+        public int receiveSuccess = 0;
     }
 
     @State(Scope.Thread)
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class WriteCounters
     {
-        public int writeExceptions = 0;
-        public int writeFails = 0;
-        public int writeSuccesses = 0;
+        public int writeException = 0;
+        public int writeFail = 0;
+        public int writeSuccess = 0;
     }
 
     @State(Scope.Thread)
@@ -114,16 +114,16 @@ public class ConnectedDatagramChannelBenchmark
             final SocketAddress sourceSocket = state.receiveChannel.receive(buffer);
             if (null != sourceSocket)
             {
-                receiveCounters.receiveSuccesses++;
+                receiveCounters.receiveSuccess++;
             }
             else
             {
-                receiveCounters.receiveFails++;
+                receiveCounters.receiveFail++;
             }
         }
         catch (final IOException ignore)
         {
-            receiveCounters.receiveExceptions++;
+            receiveCounters.receiveException++;
         }
     }
 
@@ -141,7 +141,7 @@ public class ConnectedDatagramChannelBenchmark
             final int bytesWritten = sendChannel.write(buffer);
             if (Configuration.DATAGRAM_LENGTH == bytesWritten)
             {
-                writeCounters.writeSuccesses++;
+                writeCounters.writeSuccess++;
                 if (++state.sendChannelIndex >= state.sendChannels.length)
                 {
                     state.sendChannelIndex = 0;
@@ -149,12 +149,12 @@ public class ConnectedDatagramChannelBenchmark
             }
             else
             {
-                writeCounters.writeFails++;
+                writeCounters.writeFail++;
             }
         }
         catch (final IOException ignore)
         {
-            writeCounters.writeExceptions++;
+            writeCounters.writeException++;
         }
     }
 }
