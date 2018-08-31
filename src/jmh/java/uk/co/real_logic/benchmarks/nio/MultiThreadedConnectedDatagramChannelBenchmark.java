@@ -75,7 +75,7 @@ public class MultiThreadedConnectedDatagramChannelBenchmark
                     receiveChannel = DatagramChannel.open();
                     receiveChannel.bind(address);
                     receiveChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                    receiveChannel.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH * 2);
                     receiveChannel.configureBlocking(false);
                     break;
 

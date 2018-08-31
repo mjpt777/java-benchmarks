@@ -78,13 +78,13 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
                     receiveChannelOne = DatagramChannel.open();
                     receiveChannelOne.bind(addressOne);
                     receiveChannelOne.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    receiveChannelOne.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                    receiveChannelOne.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH * 2);
                     receiveChannelOne.configureBlocking(false);
 
                     receiveChannelTwo = DatagramChannel.open();
                     receiveChannelTwo.bind(addressTwo);
                     receiveChannelTwo.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-                    receiveChannelTwo.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
+                    receiveChannelTwo.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH * 2);
                     receiveChannelTwo.configureBlocking(false);
                     break;
 
