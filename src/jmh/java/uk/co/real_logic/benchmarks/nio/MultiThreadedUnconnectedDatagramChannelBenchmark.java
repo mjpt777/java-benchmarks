@@ -113,7 +113,7 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
             buffer.clear();
 
             final SocketAddress sourceSocket = state.receiveChannel.receive(buffer);
-            if (null != sourceSocket)
+            if (null != sourceSocket && buffer.position() == DATAGRAM_LENGTH)
             {
                 receiveCounters.receiveSuccess++;
             }

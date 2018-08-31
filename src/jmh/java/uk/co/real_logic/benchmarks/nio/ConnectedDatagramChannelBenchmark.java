@@ -28,6 +28,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.concurrent.TimeUnit;
 
+import static uk.co.real_logic.benchmarks.nio.Configuration.DATAGRAM_LENGTH;
+
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class ConnectedDatagramChannelBenchmark
@@ -112,7 +114,7 @@ public class ConnectedDatagramChannelBenchmark
             buffer.clear();
 
             final SocketAddress sourceSocket = state.receiveChannel.receive(buffer);
-            if (null != sourceSocket)
+            if (null != sourceSocket && buffer.position() == DATAGRAM_LENGTH)
             {
                 receiveCounters.receiveSuccess++;
             }
@@ -136,10 +138,10 @@ public class ConnectedDatagramChannelBenchmark
         {
             final DatagramChannel sendChannel = state.sendChannels[state.sendChannelIndex];
             final ByteBuffer buffer = state.sendBuffer;
-            buffer.clear().limit(Configuration.DATAGRAM_LENGTH);
+            buffer.clear().limit(DATAGRAM_LENGTH);
 
             final int bytesWritten = sendChannel.write(buffer);
-            if (Configuration.DATAGRAM_LENGTH == bytesWritten)
+            if (DATAGRAM_LENGTH == bytesWritten)
             {
                 writeCounters.writeSuccess++;
                 if (++state.sendChannelIndex >= state.sendChannels.length)

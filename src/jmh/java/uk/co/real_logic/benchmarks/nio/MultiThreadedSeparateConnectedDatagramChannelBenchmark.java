@@ -127,13 +127,13 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             if (0 == state.receiveChannelIndex)
             {
                 final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
-                if (null == sourceSocket)
+                if (null != sourceSocket && buffer.position() == DATAGRAM_LENGTH)
                 {
-                    receiveCounters.receiveFail++;
+                    receiveCounters.receiveSuccess++;
                 }
                 else
                 {
-                    receiveCounters.receiveSuccess++;
+                    receiveCounters.receiveFail++;
                 }
 
                 state.receiveChannelIndex = 1;
@@ -141,13 +141,13 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             else
             {
                 final SocketAddress sourceSocket = state.receiveChannelOne.receive(buffer);
-                if (null == sourceSocket)
+                if (null != sourceSocket && buffer.position() == DATAGRAM_LENGTH)
                 {
-                    receiveCounters.receiveFail++;
+                    receiveCounters.receiveSuccess++;
                 }
                 else
                 {
-                    receiveCounters.receiveSuccess++;
+                    receiveCounters.receiveFail++;
                 }
 
                 state.receiveChannelIndex = 0;
