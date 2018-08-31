@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class UnconnectedDatagramChannelBenchmark
 {
     private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
-    private static final int DATAGRAM_LENGTH = 64;
+    private static final int DATAGRAM_LENGTH = 1024;
 
     @Param({ "1", "2" })
     int sourceCount;
@@ -42,16 +42,18 @@ public class UnconnectedDatagramChannelBenchmark
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class ReceiveCounters
     {
-        public int receiveFails = 0;
         public int receiveExceptions = 0;
+        public int receiveFails = 0;
+        public int receiveSuccesses = 0;
     }
 
     @State(Scope.Thread)
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class SendCounters
     {
-        public int sendFails = 0;
         public int sendExceptions = 0;
+        public int sendFails = 0;
+        public int sendSuccesses = 0;
     }
 
     @State(Scope.Thread)
@@ -104,7 +106,7 @@ public class UnconnectedDatagramChannelBenchmark
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @Group("channel")
-    public SocketAddress receive(final ThreadState state, final ReceiveCounters receiveCounters)
+    public void receive(final ThreadState state, final ReceiveCounters receiveCounters)
     {
         try
         {
@@ -112,17 +114,18 @@ public class UnconnectedDatagramChannelBenchmark
             buffer.clear();
 
             final SocketAddress sourceSocket = state.receiveChannel.receive(buffer);
-            if (null == sourceSocket)
+            if (null != sourceSocket)
+            {
+                receiveCounters.receiveSuccesses++;
+            }
+            else
             {
                 receiveCounters.receiveFails++;
             }
-
-            return sourceSocket;
         }
         catch (final IOException ignore)
         {
             receiveCounters.receiveExceptions++;
-            return null;
         }
     }
 
@@ -138,16 +141,17 @@ public class UnconnectedDatagramChannelBenchmark
             buffer.clear().limit(DATAGRAM_LENGTH);
 
             final int bytesWritten = sendChannel.send(buffer, state.address);
-            if (DATAGRAM_LENGTH != bytesWritten)
+            if (DATAGRAM_LENGTH == bytesWritten)
             {
-                sendCounters.sendFails++;
-            }
-            else
-            {
+                sendCounters.sendSuccesses++;
                 if (++state.sendChannelIndex >= state.sendChannels.length)
                 {
                     state.sendChannelIndex = 0;
                 }
+            }
+            else
+            {
+                sendCounters.sendFails++;
             }
         }
         catch (final IOException ignore)

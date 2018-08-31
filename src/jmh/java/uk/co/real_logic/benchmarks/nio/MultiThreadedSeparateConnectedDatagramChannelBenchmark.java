@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
 {
     private static final int SOCKET_BUFFER_LENGTH = 2 * 1024 * 1024;
-    private static final int DATAGRAM_LENGTH = 64;
+    private static final int DATAGRAM_LENGTH = 1024;
 
     @Param({ "2" })
     int sourceCount;
@@ -40,16 +40,18 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class ReceiveCounters
     {
-        public int receiveFails = 0;
         public int receiveExceptions = 0;
+        public int receiveFails = 0;
+        public int receiveSuccesses = 0;
     }
 
     @State(Scope.Thread)
     @AuxCounters(AuxCounters.Type.OPERATIONS)
     public static class WriteCounters
     {
-        public int writeFails = 0;
         public int writeExceptions = 0;
+        public int writeFails = 0;
+        public int writeSuccesses = 0;
     }
 
     @State(Scope.Thread)
@@ -78,6 +80,7 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
                     receiveChannelOne.setOption(StandardSocketOptions.SO_REUSEADDR, true);
                     receiveChannelOne.setOption(StandardSocketOptions.SO_RCVBUF, SOCKET_BUFFER_LENGTH);
                     receiveChannelOne.configureBlocking(false);
+
                     receiveChannelTwo = DatagramChannel.open();
                     receiveChannelTwo.bind(addressTwo);
                     receiveChannelTwo.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -114,7 +117,7 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
     @Benchmark
     @BenchmarkMode(Mode.Throughput)
     @Group("channel")
-    public SocketAddress receive(final ThreadState state, final ReceiveCounters receiveCounters)
+    public void receive(final ThreadState state, final ReceiveCounters receiveCounters)
     {
         try
         {
@@ -128,9 +131,12 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
                 {
                     receiveCounters.receiveFails++;
                 }
+                else
+                {
+                    receiveCounters.receiveSuccesses++;
+                }
 
                 state.receiveChannelIndex = 1;
-                return sourceSocket;
             }
             else
             {
@@ -139,15 +145,17 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
                 {
                     receiveCounters.receiveFails++;
                 }
+                else
+                {
+                    receiveCounters.receiveSuccesses++;
+                }
 
                 state.receiveChannelIndex = 0;
-                return sourceSocket;
             }
         }
         catch (final IOException ignore)
         {
             receiveCounters.receiveExceptions++;
-            return null;
         }
     }
 
@@ -162,7 +170,11 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             buffer.clear().limit(DATAGRAM_LENGTH);
 
             final int bytesWritten = state.sendChannelOne.write(buffer);
-            if (DATAGRAM_LENGTH != bytesWritten)
+            if (DATAGRAM_LENGTH == bytesWritten)
+            {
+                writeCounters.writeSuccesses++;
+            }
+            else
             {
                 writeCounters.writeFails++;
             }
@@ -184,7 +196,11 @@ public class MultiThreadedSeparateConnectedDatagramChannelBenchmark
             buffer.clear().limit(DATAGRAM_LENGTH);
 
             final int bytesWritten = state.sendChannelTwo.write(buffer);
-            if (DATAGRAM_LENGTH != bytesWritten)
+            if (DATAGRAM_LENGTH == bytesWritten)
+            {
+                writeCounters.writeSuccesses++;
+            }
+            else
             {
                 writeCounters.writeFails++;
             }
