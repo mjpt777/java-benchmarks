@@ -93,7 +93,7 @@ public class ConnectedDatagramChannelBenchmark
         }
 
         @TearDown
-        public void teardown()
+        public void tearDown()
         {
             CloseHelper.close(receiveChannel);
             for (final DatagramChannel channel : sendChannels)

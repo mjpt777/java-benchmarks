@@ -94,7 +94,7 @@ public class MultiThreadedUnconnectedDatagramChannelBenchmark
         }
 
         @TearDown
-        public void teardown()
+        public void tearDown()
         {
             CloseHelper.close(receiveChannel);
             CloseHelper.close(sendChannelOne);
