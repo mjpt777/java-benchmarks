@@ -61,7 +61,8 @@ task runBenchmarks(type: Exec) {
     commandLine 'java',
     '-jar', 'build/libs/benchmarks.jar',
     '.*Benchmark.*',
-    '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5'
+    '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5',
+    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m'
 }
 
 task runGcProfileBenchmarks(type: Exec) {
@@ -69,7 +70,7 @@ task runGcProfileBenchmarks(type: Exec) {
     '-jar', 'build/libs/benchmarks.jar',
     '.*Benchmark.*',
     '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '1',
-    '-prof', 'gc', '-jvmArgsAppend', '-XX:+UseParallelGC -Xms1g -Xmx1g'
+    '-prof', 'gc', '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m'
 }
 
 wrapper {
