@@ -1,0 +1,89 @@
+Linux 4.15 Kernel (Ubuntu 18.04 LTS)
+Intel(R) Xeon(R) CPU E3-1505M v6 @ 3.00GHz
+
+
+# JMH version: 1.21
+# VM version: JDK 1.8.0_181, Java HotSpot(TM) 64-Bit Server VM, 25.181-b13
+# VM invoker: /home/mjpt777/opt/jdk1.8.0_181/jre/bin/java
+# VM options: -XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 5 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Sampling time
+# Benchmark: uk.co.real_logic.benchmarks.nio.DatagramChannelLatencyBenchmark.singleSourceRoundTrip
+Benchmark                                                                              Mode      Cnt     Score   Error  Units
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip                                sample  3851147     4.071 ± 0.002  us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.00    sample              3.440          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.50    sample              4.004          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.90    sample              4.368          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.95    sample              4.552          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.99    sample              5.064          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.999   sample             22.432          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.9999  sample             30.432          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p1.00    sample             86.528          us/op
+
+# JMH version: 1.21
+# VM version: JDK 1.8.0_181, Java HotSpot(TM) 64-Bit Server VM, 25.181-b13
+# VM invoker: /home/mjpt777/opt/jdk1.8.0_181/jre/bin/java
+# VM options: -XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 5 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Sampling time
+# Benchmark: uk.co.real_logic.benchmarks.nio.DatagramChannelLatencyBenchmark.dualSourceRoundTrip
+Benchmark                                                                              Mode      Cnt     Score   Error  Units
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip                                  sample  3151835     4.964 ± 0.004  us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.00        sample              3.928          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.50        sample              4.600          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.90        sample              5.976          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.95        sample              6.472          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.99        sample              7.440          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.999       sample             23.008          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.9999      sample             30.848          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p1.00        sample           1988.608          us/op
+
+
+# JMH version: 1.21
+# VM version: JDK 11, Java HotSpot(TM) 64-Bit Server VM, 11+28
+# VM invoker: /home/mjpt777/opt/jdk-11/bin/java
+# VM options: -XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 5 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Sampling time
+# Benchmark: uk.co.real_logic.benchmarks.nio.DatagramChannelLatencyBenchmark.singleSourceRoundTrip
+Benchmark                                                                              Mode      Cnt     Score   Error  Units
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip                                sample  3955441     3.960 ± 0.002  us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.00    sample              3.492          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.50    sample              3.792          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.90    sample              4.208          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.95    sample              4.280          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.99    sample              4.920          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.999   sample             22.880          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p0.9999  sample             30.848          us/op
+DatagramChannelLatencyBenchmark.singleSourceRoundTrip:singleSourceRoundTrip·p1.00    sample            160.512          us/op
+
+# JMH version: 1.21
+# VM version: JDK 11, Java HotSpot(TM) 64-Bit Server VM, 11+28
+# VM invoker: /home/mjpt777/opt/jdk-11/bin/java
+# VM options: -XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0
+# Warmup: 3 iterations, 1 s each
+# Measurement: 5 iterations, 5 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Sampling time
+# Benchmark: uk.co.real_logic.benchmarks.nio.DatagramChannelLatencyBenchmark.dualSourceRoundTrip
+Benchmark                                                                              Mode      Cnt     Score   Error  Units
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip                                  sample  3120442     5.017 ± 0.011  us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.00        sample              3.972          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.50        sample              4.648          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.90        sample              6.048          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.95        sample              6.416          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.99        sample              7.512          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.999       sample             23.520          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p0.9999      sample             31.136          us/op
+DatagramChannelLatencyBenchmark.dualSourceRoundTrip:dualSourceRoundTrip·p1.00        sample           9486.336          us/op
+
