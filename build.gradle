@@ -65,6 +65,14 @@ task runBenchmarks(type: Exec) {
     '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m'
 }
 
+task runLatencyBenchmarks(type: Exec) {
+    commandLine 'java',
+    '-jar', 'build/libs/benchmarks.jar',
+    '.*DatagramChannelLatencyBenchmark.*',
+    '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5',
+    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m'
+}
+
 task runGcProfileBenchmarks(type: Exec) {
     commandLine 'java',
     '-jar', 'build/libs/benchmarks.jar',
