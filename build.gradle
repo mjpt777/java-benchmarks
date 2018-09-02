@@ -75,10 +75,10 @@ task runLatencyBenchmarks(type: Exec) {
 
 task runProfilingBenchmarks(type: Exec) {
     commandLine 'java',
-            '-jar', 'build/libs/benchmarks.jar',
-            '.*MultiThreadedConnectedDatagramChannelBenchmark.*',
-            '-w', '1s', '-r', '20s', '-wi', '5', '-i', '1', '-f', '1',
-            '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0'
+    '-jar', 'build/libs/benchmarks.jar',
+    '.*MultiThreadedSeparateConnectedDatagramChannelBenchmark.*',
+    '-w', '1s', '-r', '20s', '-wi', '5', '-i', '1', '-f', '1',
+    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0'
 }
 
 task runGcProfileBenchmarks(type: Exec) {
