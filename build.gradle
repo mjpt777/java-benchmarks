@@ -70,7 +70,7 @@ task runLatencyBenchmarks(type: Exec) {
     '-jar', 'build/libs/benchmarks.jar',
     '.*DatagramChannelLatencyBenchmark.*',
     '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5',
-    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0'
+    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0 -Djava.net.preferIPv4Stack=true'
 }
 
 task runProfilingBenchmarks(type: Exec) {
