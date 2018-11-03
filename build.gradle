@@ -23,7 +23,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '4.0.0'
+    id 'com.github.johnrengelman.shadow' version '4.0.2'
 }
 
 defaultTasks 'clean', 'build', 'shadowJar'
