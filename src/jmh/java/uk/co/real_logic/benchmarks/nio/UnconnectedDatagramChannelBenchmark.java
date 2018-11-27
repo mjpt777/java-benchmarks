@@ -63,7 +63,7 @@ public class UnconnectedDatagramChannelBenchmark
         final ByteBuffer receiveBuffer = ByteBuffer.allocateDirect(4096);
         DatagramChannel receiveChannel = null;
         final ByteBuffer sendBuffer = ByteBuffer.allocateDirect(4096);
-        DatagramChannel sendChannels[] = new DatagramChannel[0];
+        DatagramChannel[] sendChannels = new DatagramChannel[0];
         int sendChannelIndex = 0;
 
         @Setup
