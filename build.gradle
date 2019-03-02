@@ -23,7 +23,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
 
 defaultTasks 'clean', 'build', 'shadowJar'
@@ -52,8 +52,7 @@ dependencies {
 jar.enabled = false
 
 shadowJar {
-    archiveName = 'benchmarks.jar'
-    classifier = 'benchmarks'
+    archiveFileName = 'benchmarks.jar'
     manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
 }
 
@@ -90,6 +89,6 @@ task runGcProfileBenchmarks(type: Exec) {
 }
 
 wrapper {
-    gradleVersion = '4.10.3'
+    gradleVersion = '5.2.1'
     distributionType = 'ALL'
 }
