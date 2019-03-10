@@ -44,8 +44,8 @@ sourceSets {
 }
 
 dependencies {
-    compile 'org.agrona:agrona:0.9.33'
-    compile 'org.openjdk.jmh:jmh-core:1.21'
+    implementation 'org.agrona:agrona:0.9.34'
+    implementation 'org.openjdk.jmh:jmh-core:1.21'
     annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.21'
 }
 
