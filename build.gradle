@@ -45,6 +45,7 @@ dependencies {
 jar.enabled = false
 
 shadowJar {
+    mustRunAfter jar
     archiveFileName = 'benchmarks.jar'
     manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
 }
