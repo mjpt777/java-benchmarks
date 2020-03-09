@@ -45,7 +45,6 @@ dependencies {
 jar.enabled = false
 
 shadowJar {
-    mustRunAfter jar
     archiveFileName = 'benchmarks.jar'
     manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
 }
@@ -83,6 +82,6 @@ task runGcProfileBenchmarks(type: Exec) {
 }
 
 wrapper {
-    gradleVersion = '6.2.1'
+    gradleVersion = '6.2.2'
     distributionType = 'ALL'
 }
