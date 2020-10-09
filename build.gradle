@@ -38,8 +38,8 @@ sourceSets {
 
 dependencies {
     implementation 'org.agrona:agrona:1.8.0'
-    implementation 'org.openjdk.jmh:jmh-core:1.25.2'
-    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.25.2'
+    implementation 'org.openjdk.jmh:jmh-core:1.26'
+    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.26'
 }
 
 jar.enabled = false
