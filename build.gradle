@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 Real Logic Limited.
+ * Copyright 2018-2021 Real Logic Limited.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,6 @@ task runGcProfileBenchmarks(type: Exec) {
 }
 
 wrapper {
-    gradleVersion = '6.7.1'
+    gradleVersion = '6.8.1'
     distributionType = 'ALL'
 }
