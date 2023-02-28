@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.0'
 }
 
 defaultTasks 'clean', 'build', 'shadowJar'
@@ -48,39 +48,39 @@ shadowJar {
     manifest.attributes('Main-Class': 'org.openjdk.jmh.Main')
 }
 
-task runBenchmarks(type: Exec) {
+tasks.register('runBenchmarks', Exec) {
     commandLine 'java',
-    '-jar', 'build/libs/benchmarks.jar',
-    '.*Benchmark.*',
-    '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5',
-    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0'
+        '-jar', 'build/libs/benchmarks.jar',
+        '.*Benchmark.*',
+        '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5',
+        '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0'
 }
 
-task runLatencyBenchmarks(type: Exec) {
+tasks.register('runLatencyBenchmarks', Exec) {
     commandLine 'java',
-    '-jar', 'build/libs/benchmarks.jar',
-    '.*DatagramChannelLatencyBenchmark.*',
-    '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5',
-    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0 -Djava.net.preferIPv4Stack=true'
+        '-jar', 'build/libs/benchmarks.jar',
+        '.*DatagramChannelLatencyBenchmark.*',
+        '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '5',
+        '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0 -Djava.net.preferIPv4Stack=true'
 }
 
-task runProfilingBenchmarks(type: Exec) {
+tasks.register('runProfilingBenchmarks', Exec) {
     commandLine 'java',
-    '-jar', 'build/libs/benchmarks.jar',
-    '.*MultiThreadedConnectedDatagramChannelBenchmark.*',
-    '-w', '1s', '-r', '30s', '-wi', '5', '-i', '1', '-f', '1',
-    '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0 -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints'
+        '-jar', 'build/libs/benchmarks.jar',
+        '.*MultiThreadedConnectedDatagramChannelBenchmark.*',
+        '-w', '1s', '-r', '30s', '-wi', '5', '-i', '1', '-f', '1',
+        '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0 -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints'
 }
 
-task runGcProfileBenchmarks(type: Exec) {
+tasks.register('runGcProfileBenchmarks', Exec) {
     commandLine 'java',
-    '-jar', 'build/libs/benchmarks.jar',
-    '.*Benchmark.*',
-    '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '1',
-    '-prof', 'gc', '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0'
+        '-jar', 'build/libs/benchmarks.jar',
+        '.*Benchmark.*',
+        '-w', '1s', '-r', '5s', '-wi', '3', '-i', '5', '-f', '1',
+        '-prof', 'gc', '-jvmArgsAppend', '-XX:+UseParallelGC -Xms512m -Xmx512m -XX:BiasedLockingStartupDelay=0'
 }
 
 wrapper {
-    gradleVersion = '7.6'
+    gradleVersion = '8.0.1'
     distributionType = 'ALL'
 }
